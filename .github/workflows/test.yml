@@ -1,0 +1,25 @@
+on: [push, pull_request]
+name: test
+
+jobs:
+    test:
+        strategy:
+            matrix:
+                go-version:
+                    - 1.20.x
+                os: [ubuntu-latest]
+        runs-on: ${{ matrix.os }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Install Go
+              uses: actions/setup-go@v4
+              with:
+                  go-version: ${{ matrix.go-version }}
+
+            - name: Test
+              run: go test ./... -v
+              env:
+                  RAPID7_REGION: ${{ secrets.RAPID7_REGION }}
+                  RAPID7_API_KEY: ${{ secrets.RAPID7_API_KEY }}
