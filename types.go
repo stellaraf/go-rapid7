@@ -4,9 +4,16 @@ import "time"
 
 const IDR_VERSION string = "v2"
 
+// CRITICAL, HIGH, MEDIUM, LOW, UNSPECIFIED
 type InvestigationPriority string
+
+// OPEN, INVESTIGATING, CLOSED
 type InvestigationStatus string
+
+// BENIGN, MALICIOUS, NOT_APPLICABLE, UNDECIDED
 type InvestigationDisposition string
+
+// MANUAL, HUNT, ALERT
 type InvestigationSource string
 
 const UNSPECIFIED InvestigationPriority = "UNSPECIFIED"
