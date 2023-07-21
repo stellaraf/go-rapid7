@@ -3,7 +3,6 @@ package rapid7
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"path"
 	"strings"
@@ -26,7 +25,6 @@ func (idr *IDR) URL(paths ...string) string {
 }
 
 func (idr *IDR) InvestigationComments(inv *Investigation) (comments *InvestigationComments, err error) {
-	log.Println(inv.RRN)
 	req := idr.http.R().
 		SetError(&APIError{}).
 		SetResult(InvestigationComments{}).

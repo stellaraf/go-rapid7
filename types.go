@@ -104,7 +104,7 @@ type CommentAttachment struct {
 	Creator     Creator   `json:"creator"`
 	FileName    string    `json:"file_name"`
 	MimeType    string    `json:"mime_type"`
-	RRN         RRN       `json:"rrn"`
+	RRN         string    `json:"rrn"`
 	ScanStatus  string    `json:"scan_status"`
 	Size        int64     `json:"size"`
 }
@@ -122,7 +122,7 @@ type InvestigationCommentData struct {
 	Body        string              `json:"body"`
 	CreatedTime time.Time           `json:"created_time"`
 	Creator     Creator             `json:"creator"`
-	RRN         RRN                 `json:"rrn"`
+	RRN         string              `json:"rrn"`
 	Target      string              `json:"target"`
 	Visibility  string              `json:"visibility"`
 	Attachments []CommentAttachment `json:"attachments"`
