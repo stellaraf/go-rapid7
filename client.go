@@ -3,6 +3,7 @@ package rapid7
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 	"path"
 	"strings"
@@ -21,21 +22,44 @@ type IDR struct {
 }
 
 func (idr *IDR) URL(paths ...string) string {
-	base := fmt.Sprintf("/idr/%s/", IDR_VERSION)
-	p := path.Join(paths...)
-	return base + p
+	return fmt.Sprintf("/idr/%s/", path.Join(paths...))
+}
+
+func (idr *IDR) InvestigationComments(inv *Investigation) (comments *InvestigationComments, err error) {
+	log.Println(inv.RRN)
+	req := idr.http.R().
+		SetError(&APIError{}).
+		SetResult(InvestigationComments{}).
+		SetHeader("accept-version", "comments-preview").
+		SetQueryParam("target", inv.RRN).
+		SetQueryParam("size", "100")
+	res, err := req.Get(idr.URL("/v1/comments"))
+	if err != nil {
+		return
+	}
+	if res.IsError() {
+		e := res.Error().(*APIError)
+		err = fmt.Errorf("%s: %s", res.Status(), e.Message)
+		return
+	}
+	comments, ok := res.Result().(*InvestigationComments)
+	if !ok {
+		err = fmt.Errorf("failed to decode comments data")
+		return
+	}
+	return
 }
 
 func (idr *IDR) Investigation(id string) (investigation *Investigation, err error) {
 	req := idr.http.R()
 	req.SetError(&APIError{})
-	res, err := req.Get(idr.URL("investigations", id))
+	res, err := req.Get(idr.URL("/v2/investigations", id))
 	if err != nil {
 		return
 	}
-	if res.StatusCode() > 200 {
+	if res.IsError() {
 		e := res.Error().(*APIError)
-		err = fmt.Errorf(e.Message)
+		err = fmt.Errorf("%s: %s", res.Status(), e.Message)
 		return
 	}
 	err = json.Unmarshal(res.Body(), &investigation)
@@ -52,13 +76,13 @@ func (idr *IDR) Investigations(q ...*InvestigationsQuery) (investigations []*Inv
 		}
 		req.SetQueryParamsFromValues(qe)
 	}
-	res, err := req.Get(idr.URL("investigations"))
+	res, err := req.Get(idr.URL("/v2/investigations"))
 	if err != nil {
 		return
 	}
-	if res.StatusCode() > 200 {
+	if res.IsError() {
 		e := res.Error().(*APIError)
-		err = fmt.Errorf(e.Message)
+		err = fmt.Errorf("%s: %s", res.Status(), e.Message)
 		return
 	}
 	var invRes *InvestigationsResponse

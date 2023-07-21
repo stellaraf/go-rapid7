@@ -2,8 +2,6 @@ package rapid7
 
 import "time"
 
-const IDR_VERSION string = "v2"
-
 // CRITICAL, HIGH, MEDIUM, LOW, UNSPECIFIED
 type InvestigationPriority string
 
@@ -50,7 +48,7 @@ type Investigation struct {
 	OrganizationID  string                   `json:"organization_id"`
 	Priority        InvestigationPriority    `json:"priority"`
 	Responsibility  string                   `json:"responsibility"`
-	Rrn             string                   `json:"rrn"`
+	RRN             string                   `json:"rrn"`
 	Source          InvestigationSource      `json:"source"`
 	Status          InvestigationStatus      `json:"status"`
 	Tags            []string                 `json:"tags"`
@@ -62,20 +60,22 @@ type APIError struct {
 	CorrelationID string `json:"correlation_id"`
 }
 
+type Metadata struct {
+	// The current page, starting from 0. This value will always be provided.
+	Index int `json:"index"`
+	// The number of data items in the current page. This value will always be provided.
+	Size int `json:"size"`
+	// The total number of pages that make up the complete response. This will be provided if possible.
+	TotalPages int `json:"total_pages,omitempty"`
+	// The total number of data items that make up the complete response. This will be provided if possible.
+	TotalData int `json:"total_data,omitempty"`
+	// The attributes used to sort the complete response. This will be provided if the response is sorted.
+	Sort string `json:"sort,omitempty"`
+}
+
 type Rapid7PagedResponse[T any] struct {
-	Data     []*T `json:"data"`
-	MetaData struct {
-		// The current page, starting from 0. This value will always be provided.
-		Index int `json:"index"`
-		// The number of data items in the current page. This value will always be provided.
-		Size int `json:"size"`
-		// The total number of pages that make up the complete response. This will be provided if possible.
-		TotalPages int `json:"total_pages,omitempty"`
-		// The total number of data items that make up the complete response. This will be provided if possible.
-		TotalData int `json:"total_data,omitempty"`
-		// The attributes used to sort the complete response. This will be provided if the response is sorted.
-		Sort string `json:"sort,omitempty"`
-	} `json:"metadata"`
+	Data     []*T     `json:"data"`
+	Metadata Metadata `json:"metadata"`
 }
 
 type InvestigationsResponse = Rapid7PagedResponse[Investigation]
@@ -92,4 +92,43 @@ type InvestigationsQuery struct {
 	StartTime     time.Time `url:"start_time,omitempty,comma"`
 	Statuses      []string  `url:"statuses,omitempty,comma"`
 	Tags          []string  `url:"tags,omitempty,comma"`
+}
+
+type Creator struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+type CommentAttachment struct {
+	CreatedTime time.Time `json:"created_time"`
+	Creator     Creator   `json:"creator"`
+	FileName    string    `json:"file_name"`
+	MimeType    string    `json:"mime_type"`
+	RRN         RRN       `json:"rrn"`
+	ScanStatus  string    `json:"scan_status"`
+	Size        int64     `json:"size"`
+}
+
+type RRN struct {
+	OrganizationID string   `json:"organizationId"`
+	Partition      string   `json:"partition"`
+	RegionCode     string   `json:"regionCode"`
+	Resource       string   `json:"resource"`
+	ResourceTypes  []string `json:"resourceTypes"`
+	Service        string   `json:"service"`
+}
+
+type InvestigationCommentData struct {
+	Body        string              `json:"body"`
+	CreatedTime time.Time           `json:"created_time"`
+	Creator     Creator             `json:"creator"`
+	RRN         RRN                 `json:"rrn"`
+	Target      string              `json:"target"`
+	Visibility  string              `json:"visibility"`
+	Attachments []CommentAttachment `json:"attachments"`
+}
+
+type InvestigationComments struct {
+	Data     []InvestigationCommentData `json:"data"`
+	Metadata Metadata                   `json:"metadata"`
 }
