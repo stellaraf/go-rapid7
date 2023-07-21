@@ -39,12 +39,12 @@ type Assignee struct {
 }
 
 type Investigation struct {
-	Assignee        Assignee                 `json:"assignee"`
+	Assignee        *Assignee                `json:"assignee"`
 	CreatedTime     time.Time                `json:"created_time"`
 	Disposition     InvestigationDisposition `json:"disposition"`
-	FirstAlertTime  time.Time                `json:"first_alert_time"`
+	FirstAlertTime  *time.Time               `json:"first_alert_time"`
 	LastAccessed    time.Time                `json:"last_accessed"`
-	LatestAlertTime time.Time                `json:"latest_alert_time"`
+	LatestAlertTime *time.Time               `json:"latest_alert_time"`
 	OrganizationID  string                   `json:"organization_id"`
 	Priority        InvestigationPriority    `json:"priority"`
 	Responsibility  string                   `json:"responsibility"`
