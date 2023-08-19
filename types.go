@@ -1,18 +1,37 @@
 package rapid7
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 // CRITICAL, HIGH, MEDIUM, LOW, UNSPECIFIED
 type InvestigationPriority string
 
+func (i InvestigationPriority) String() string {
+	return string(i)
+}
+
 // OPEN, INVESTIGATING, CLOSED
 type InvestigationStatus string
+
+func (i InvestigationStatus) String() string {
+	return string(i)
+}
 
 // BENIGN, MALICIOUS, NOT_APPLICABLE, UNDECIDED
 type InvestigationDisposition string
 
+func (i InvestigationDisposition) String() string {
+	return string(i)
+}
+
 // MANUAL, HUNT, ALERT
 type InvestigationSource string
+
+func (i InvestigationSource) String() string {
+	return string(i)
+}
 
 const UNSPECIFIED InvestigationPriority = "UNSPECIFIED"
 const LOW InvestigationPriority = "LOW"
@@ -53,6 +72,20 @@ type Investigation struct {
 	Status          InvestigationStatus      `json:"status"`
 	Tags            []string                 `json:"tags"`
 	Title           string                   `json:"title"`
+}
+
+func (i *Investigation) ID() string {
+	if i.RRN == "" {
+		return ""
+	}
+	if !strings.Contains(i.RRN, "investigation") {
+		return ""
+	}
+	parts := strings.Split(i.RRN, ":")
+	if len(parts) != 6 {
+		return ""
+	}
+	return parts[3]
 }
 
 type APIError struct {
