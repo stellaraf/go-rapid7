@@ -89,6 +89,27 @@ func (idr *IDR) Investigations(q ...*InvestigationsQuery) (investigations []*Inv
 	return
 }
 
+func (idr *IDR) UpdateInvestigation(id string, update *InvestigationUpdateRequest) (*Investigation, error) {
+	req := idr.http.R()
+	req.SetError(&APIError{})
+	req.SetBody(&update)
+	res, err := req.Patch(idr.URL("/v2/investigations", id))
+	if err != nil {
+		return nil, err
+	}
+	if res.IsError() {
+		e := res.Error().(*APIError)
+		err := fmt.Errorf("%s: %s", res.Status(), e.Message)
+		return nil, err
+	}
+	var inv *Investigation
+	err = json.Unmarshal(res.Body(), &inv)
+	if err != nil {
+		return nil, err
+	}
+	return inv, nil
+}
+
 func newIDR(region, apiKey string) (idr *IDR, err error) {
 	h := resty.New()
 	urlS := fmt.Sprintf("https://%s.api.insight.rapid7.com", strings.ToLower(region))

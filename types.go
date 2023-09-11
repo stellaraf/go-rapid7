@@ -154,3 +154,15 @@ type InvestigationComments struct {
 	Data     []InvestigationCommentData `json:"data"`
 	Metadata Metadata                   `json:"metadata"`
 }
+
+type InvestigationAssignee struct {
+	Email string `json:"email"`
+}
+
+type InvestigationUpdateRequest struct {
+	Assignee    *InvestigationAssignee   `json:"assignee,omitempty"`
+	Disposition InvestigationDisposition `json:"disposition,omitempty"`
+	Priority    InvestigationPriority    `json:"priority,omitempty"`
+	Status      InvestigationStatus      `json:"status,omitempty"`
+	Title       string                   `json:"title,omitempty"`
+}
