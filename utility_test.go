@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestInvestigation_ID(t *testing.T) {
+func Test_InvestigationIDFromRRN(t *testing.T) {
 	cases := [][]string{
 		{"", ""},
 		{"rrn:investigation:", ""},

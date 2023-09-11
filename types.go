@@ -1,7 +1,6 @@
 package rapid7
 
 import (
-	"strings"
 	"time"
 )
 
@@ -75,17 +74,7 @@ type Investigation struct {
 }
 
 func (i *Investigation) ID() string {
-	if i.RRN == "" {
-		return ""
-	}
-	if !strings.Contains(i.RRN, "investigation") {
-		return ""
-	}
-	parts := strings.Split(i.RRN, ":")
-	if len(parts) != 6 {
-		return ""
-	}
-	return parts[3]
+	return InvestigationIDFromRRN(i.RRN)
 }
 
 type APIError struct {
