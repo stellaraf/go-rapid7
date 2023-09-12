@@ -73,10 +73,6 @@ type Investigation struct {
 	Title           string                   `json:"title"`
 }
 
-func (i *Investigation) ID() string {
-	return InvestigationIDFromRRN(i.RRN)
-}
-
 type APIError struct {
 	Message       string `json:"message"`
 	CorrelationID string `json:"correlation_id"`
