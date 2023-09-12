@@ -92,7 +92,7 @@ func (idr *IDR) Investigations(q ...*InvestigationsQuery) (investigations []*Inv
 func (idr *IDR) UpdateInvestigation(id string, update *InvestigationUpdateRequest) (*Investigation, error) {
 	req := idr.http.R()
 	req.SetError(&APIError{})
-	req.SetBody(&update)
+	req.SetBody(update)
 	res, err := req.Patch(idr.URL("/v2/investigations", id))
 	if err != nil {
 		return nil, err
