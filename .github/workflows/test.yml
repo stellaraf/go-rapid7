@@ -23,3 +23,4 @@ jobs:
               env:
                   RAPID7_REGION: ${{ secrets.RAPID7_REGION }}
                   RAPID7_API_KEY: ${{ secrets.RAPID7_API_KEY }}
+                  RAPID7_INVESTIGATION_RRN: ${{ secrets.RAPID7_INVESTIGATION_RRN }}
