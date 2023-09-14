@@ -36,7 +36,10 @@ func (idr *IDR) InvestigationComments(inv *Investigation) (comments *Investigati
 		return
 	}
 	if res.IsError() {
-		e := res.Error().(*APIError)
+		e, ok := res.Error().(*APIError)
+		if !ok {
+			return nil, fmt.Errorf(res.Status())
+		}
 		err = fmt.Errorf("%s: %s", res.Status(), e.Message)
 		return
 	}
@@ -56,7 +59,10 @@ func (idr *IDR) Investigation(id string) (investigation *Investigation, err erro
 		return
 	}
 	if res.IsError() {
-		e := res.Error().(*APIError)
+		e, ok := res.Error().(*APIError)
+		if !ok {
+			return nil, fmt.Errorf(res.Status())
+		}
 		err = fmt.Errorf("%s: %s", res.Status(), e.Message)
 		return
 	}
@@ -79,12 +85,20 @@ func (idr *IDR) Investigations(q ...*InvestigationsQuery) (investigations []*Inv
 		return
 	}
 	if res.IsError() {
-		e := res.Error().(*APIError)
+		e, ok := res.Error().(*APIError)
+		if !ok {
+			err = fmt.Errorf(res.Status())
+			return
+		}
 		err = fmt.Errorf("%s: %s", res.Status(), e.Message)
 		return
 	}
 	var invRes *InvestigationsResponse
 	err = json.Unmarshal(res.Body(), &invRes)
+	if invRes == nil {
+		err = fmt.Errorf("failed to parse response")
+		return
+	}
 	investigations = invRes.Data
 	return
 }
@@ -98,7 +112,10 @@ func (idr *IDR) UpdateInvestigation(id string, update *InvestigationUpdateReques
 		return nil, err
 	}
 	if res.IsError() {
-		e := res.Error().(*APIError)
+		e, ok := res.Error().(*APIError)
+		if !ok {
+			return nil, fmt.Errorf(res.Status())
+		}
 		err := fmt.Errorf("%s: %s", res.Status(), e.Message)
 		return nil, err
 	}
