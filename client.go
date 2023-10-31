@@ -2,6 +2,7 @@ package rapid7
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"path"
@@ -70,7 +71,7 @@ func (idr *IDR) Investigation(id string) (investigation *Investigation, err erro
 	return
 }
 
-func (idr *IDR) Investigations(q ...*InvestigationsQuery) (investigations []*Investigation, err error) {
+func (idr *IDR) InvestigationsResponse(q ...*InvestigationsQuery) (*InvestigationsResponse, error) {
 	req := idr.http.R()
 	req.SetError(&APIError{})
 	if len(q) > 0 {
@@ -82,25 +83,64 @@ func (idr *IDR) Investigations(q ...*InvestigationsQuery) (investigations []*Inv
 	}
 	res, err := req.Get(idr.URL("/v2/investigations"))
 	if err != nil {
-		return
+		return nil, err
 	}
 	if res.IsError() {
 		e, ok := res.Error().(*APIError)
 		if !ok {
 			err = fmt.Errorf(res.Status())
-			return
+			return nil, err
 		}
 		err = fmt.Errorf("%s: %s", res.Status(), e.Message)
-		return
+		return nil, err
 	}
 	var invRes *InvestigationsResponse
 	err = json.Unmarshal(res.Body(), &invRes)
-	if invRes == nil {
-		err = fmt.Errorf("failed to parse response")
-		return
+	if err != nil {
+		err = errors.Join(fmt.Errorf("failed to parse response"), err)
+		return nil, err
 	}
-	investigations = invRes.Data
-	return
+	return invRes, nil
+}
+
+func (idr *IDR) Investigations(q ...*InvestigationsQuery) ([]*Investigation, error) {
+	res, err := idr.InvestigationsResponse(q...)
+	if err != nil {
+		return nil, err
+	}
+	return res.Data, nil
+}
+
+func (idr *IDR) InvestigationsAll(q ...*InvestigationsQuery) ([]*Investigation, error) {
+	res, err := idr.InvestigationsResponse(q...)
+	if err != nil {
+		return nil, err
+	}
+	investigations := res.Data
+	pages := res.Metadata.TotalPages
+	if pages > 1 {
+		page := res.Metadata.Index
+		lastPage := pages - 1
+		for {
+			if page == lastPage {
+				return investigations, nil
+			}
+			var qq *InvestigationsQuery
+			if len(q) > 0 {
+				qq = q[0]
+			} else {
+				qq = &InvestigationsQuery{}
+			}
+			qq.Index = page
+			pageRes, err := idr.InvestigationsResponse(qq)
+			if err != nil {
+				return nil, err
+			}
+			investigations = append(investigations, pageRes.Data...)
+			page = pageRes.Metadata.Index
+		}
+	}
+	return investigations, nil
 }
 
 func (idr *IDR) UpdateInvestigation(id string, update *InvestigationUpdateRequest) (*Investigation, error) {

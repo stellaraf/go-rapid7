@@ -72,6 +72,19 @@ func TestClient_Investigations(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, len(invs) != 0)
 	})
+
+	t.Run("get investigations all", func(t *testing.T) {
+		t.Parallel()
+		env, err := LoadEnv()
+		require.NoError(t, err)
+		r7, err := rapid7.New(env.Region, env.APIKey)
+		require.NoError(t, err)
+		res, err := r7.IDR.InvestigationsResponse(&rapid7.InvestigationsQuery{Size: 2})
+		require.NoError(t, err)
+		invs, err := r7.IDR.InvestigationsAll()
+		require.NoError(t, err)
+		assert.Equal(t, res.Metadata.TotalData, int64(len(invs)))
+	})
 }
 
 func TestClient_InvestigationComments(t *testing.T) {
