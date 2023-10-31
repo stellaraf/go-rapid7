@@ -41,6 +41,7 @@ const CRITICAL InvestigationPriority = "CRITICAL"
 const OPEN InvestigationStatus = "OPEN"
 const INVESTIGATING InvestigationStatus = "INVESTIGATING"
 const CLOSED InvestigationStatus = "CLOSED"
+const WAITING InvestigationStatus = "WAITING"
 
 const BENIGN InvestigationDisposition = "BENIGN"
 const MALICIOUS InvestigationDisposition = "MALICIOUS"
