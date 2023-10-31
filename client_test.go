@@ -66,7 +66,7 @@ func TestClient_Investigations(t *testing.T) {
 		r7, err := rapid7.New(env.Region, env.APIKey)
 		require.NoError(t, err)
 		q := &rapid7.InvestigationsQuery{
-			Statuses: []string{"CLOSED"},
+			Statuses: []rapid7.InvestigationStatus{rapid7.CLOSED},
 		}
 		invs, err := r7.IDR.Investigations(q)
 		require.NoError(t, err)

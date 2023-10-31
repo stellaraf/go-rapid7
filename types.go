@@ -1,8 +1,24 @@
 package rapid7
 
 import (
+	"fmt"
 	"time"
 )
+
+// ASC, DESC
+type SortDirection string
+
+func (s SortDirection) String() string {
+	return string(s)
+}
+
+// `created_time`, `priority`, `rrn`, `alerts_most_recent_created_time`, or
+// `alerts_most_recent_detection_created_time`.
+type SortField string
+
+func (s SortField) String() string {
+	return string(s)
+}
 
 // CRITICAL, HIGH, MEDIUM, LOW, UNSPECIFIED
 type InvestigationPriority string
@@ -11,7 +27,7 @@ func (i InvestigationPriority) String() string {
 	return string(i)
 }
 
-// OPEN, INVESTIGATING, CLOSED
+// OPEN, WAITING, INVESTIGATING, CLOSED
 type InvestigationStatus string
 
 func (i InvestigationStatus) String() string {
@@ -51,6 +67,15 @@ const UNDECIDED InvestigationDisposition = "UNDECIDED"
 const MANUAL InvestigationSource = "MANUAL"
 const HUNT InvestigationSource = "HUNT"
 const ALERT InvestigationSource = "ALERT"
+
+const SORT_ASCENDING SortDirection = "ASC"
+const SORT_DESCENDING SortDirection = "DESC"
+
+const SORT_CREATED_TIME SortField = "created_time"
+const SORT_PRIORITY SortField = "priority"
+const SORT_RRN SortField = "rrn"
+const SORT_MOST_RECENT_CREATED_TIME SortField = "alerts_most_recent_created_time"
+const SORT_MOST_RECENT_DETECTION_TIME SortField = "alerts_most_recent_detection_created_time"
 
 type Assignee struct {
 	Email string `json:"email"`
@@ -100,17 +125,50 @@ type Rapid7PagedResponse[T any] struct {
 type InvestigationsResponse = Rapid7PagedResponse[Investigation]
 
 type InvestigationsQuery struct {
-	AssigneeEmail string    `url:"assignee.email,omitempty"`
-	EndTime       time.Time `url:"end_time,omitempty"`
-	Index         int32     `url:"index,omitempty"`
-	MultiCustomer bool      `url:"multi-customer,omitempty"`
-	Priorities    []string  `url:"priorities,omitempty,comma"`
-	Size          int32     `url:"size,omitempty"`
-	Sort          string    `url:"sort,omitempty"`
-	Sources       []string  `url:"sources,omitempty,comma"`
-	StartTime     time.Time `url:"start_time,omitempty,comma"`
-	Statuses      []string  `url:"statuses,omitempty,comma"`
-	Tags          []string  `url:"tags,omitempty,comma"`
+	// A user's email address. Only investigations assigned to that user will be included.
+	AssigneeEmail string `url:"assignee.email,omitempty"`
+	// The time an investigation is closed. Only investigations whose created_time is before this
+	// date will be returned by the API. Must be an ISO-formatted timestamp.
+	EndTime time.Time `url:"end_time,omitempty"`
+	// The 0-based index of the first page to retrieve. Must be an integer greater than 0.
+	//
+	// Default: 0
+	Index int32 `url:"index,omitempty"`
+	// Indicates whether the requester has multi-customer access. If set to true, a user API key
+	// must be provided. Investigations will be returned from all organizations the calling user
+	// has access to.
+	//
+	// Default: false
+	MultiCustomer bool `url:"multi-customer,omitempty"`
+	// A comma-separated list of investigation priorities to include in the result.
+	Priorities []InvestigationPriority `url:"priorities,omitempty,comma"`
+	// The maximum number of investigations to retrieve. Must be an integer greater than 0, or less
+	// than or equal to 100.
+	//
+	// Default: 20
+	Size int32 `url:"size,omitempty"`
+	// Sort investigations by field and direction,  separated by a comma. Sortable fields are
+	// `created_time`, `priority`, `rrn`, `alerts_most_recent_created_time`, and
+	// `alerts_most_recent_detection_created_time`.
+	//
+	// Default: "priority,DESC"
+	Sort string `url:"sort,omitempty"`
+	// A comma-separated list of investigation sources to include in the result.
+	Sources []string `url:"sources,omitempty,comma"`
+	// The time an investigation is opened. Only investigations whose created_time is after this
+	// date will be returned by the API. Must be an ISO-formatted timestamp.
+	//
+	// Default: 28 days prior to current time.
+	StartTime time.Time `url:"start_time,omitempty,comma"`
+	// A comma-separated list of investigation statuses to include in the result.
+	Statuses []InvestigationStatus `url:"statuses,omitempty,comma"`
+	// A comma-separated list of tags to include in the result. Only investigations who have all
+	// specified tags will be included.
+	Tags []string `url:"tags,omitempty,comma"`
+}
+
+func (q *InvestigationsQuery) SortBy(field SortField, direction SortDirection) {
+	q.Sort = fmt.Sprintf("%s,%s", field, direction)
 }
 
 type Creator struct {
