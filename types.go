@@ -81,15 +81,15 @@ type APIError struct {
 
 type Metadata struct {
 	// The current page, starting from 0. This value will always be provided.
-	Index int `json:"index"`
+	Index int32 `json:"index"`
 	// The number of data items in the current page. This value will always be provided.
-	Size int `json:"size"`
-	// The total number of pages that make up the complete response. This will be provided if possible.
-	TotalPages int `json:"total_pages,omitempty"`
-	// The total number of data items that make up the complete response. This will be provided if possible.
-	TotalData int `json:"total_data,omitempty"`
+	Size int32 `json:"size"`
 	// The attributes used to sort the complete response. This will be provided if the response is sorted.
 	Sort string `json:"sort,omitempty"`
+	// The total number of data items that make up the complete response. This will be provided if possible.
+	TotalData int64 `json:"total_data,omitempty"`
+	// The total number of pages that make up the complete response. This will be provided if possible.
+	TotalPages int32 `json:"total_pages,omitempty"`
 }
 
 type Rapid7PagedResponse[T any] struct {
