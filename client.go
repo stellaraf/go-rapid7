@@ -22,7 +22,7 @@ type IDR struct {
 }
 
 func (idr *IDR) URL(paths ...string) string {
-	return fmt.Sprintf("/idr/%s/", path.Join(paths...))
+	return fmt.Sprintf("/idr/%s", path.Join(paths...))
 }
 
 func (idr *IDR) InvestigationComments(inv *Investigation) (comments *InvestigationComments, err error) {
