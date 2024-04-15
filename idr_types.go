@@ -5,6 +5,13 @@ import (
 	"time"
 )
 
+// EQUALS, CONTAINS, IN
+type SearchOperator string
+
+func (s SearchOperator) String() string {
+	return string(s)
+}
+
 // ASC, DESC
 type SortDirection string
 
@@ -76,6 +83,46 @@ const SORT_PRIORITY SortField = "priority"
 const SORT_RRN SortField = "rrn"
 const SORT_MOST_RECENT_CREATED_TIME SortField = "alerts_most_recent_created_time"
 const SORT_MOST_RECENT_DETECTION_TIME SortField = "alerts_most_recent_detection_created_time"
+
+const EQUALS SearchOperator = "EQUALS"
+const CONTAINS SearchOperator = "CONTAINS"
+const IN SearchOperator = "IN"
+
+type IDRAssetSearchPageSize int32
+
+func (s IDRAssetSearchPageSize) String() string {
+	return fmt.Sprintf("%d", s)
+}
+
+var IDR_ASSET_SEARCH_PAGE_SIZE IDRAssetSearchPageSize = 100
+
+type IDRAssetRequest struct {
+	Search []IDRAssetSearchQuery `json:"search"`
+	Sort   []IDRAssetSortQuery   `json:"sort,omitempty"`
+}
+
+type IDRAssetSearchQuery struct {
+	Field    string         `json:"field"`
+	Operator SearchOperator `json:"operator"`
+	Value    string         `json:"value"`
+}
+
+type IDRAssetSortQuery struct {
+	Field string        `json:"field"`
+	Order SortDirection `json:"order"`
+}
+
+type IDRAssetQueryParams struct {
+	Index *int32 `json:"index"`
+	// Size field is not used here, but it is included to reflect the data structure.
+	// Set ASSET_SEARCH_PAGE_SIZE instead.
+	Size *int32 `json:"size"`
+}
+
+type IDRAsset struct {
+	RRN  string `json:"rrn"`
+	Name string `json:"name"`
+}
 
 type Assignee struct {
 	Email string `json:"email"`
