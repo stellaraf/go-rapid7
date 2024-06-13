@@ -15,6 +15,7 @@ import (
 type IDR struct {
 	BaseURL *url.URL
 	http    *resty.Client
+	gql     *GraphQLClient
 }
 
 func (idr *IDR) URL(paths ...string) string {
@@ -222,6 +223,15 @@ func (idr *IDR) Assets(search ...IDRAssetSearchQuery) ([]*IDRAsset, error) {
 	return assets, nil
 }
 
+func (idr *IDR) AssetCount(orgID string) (uint64, error) {
+	q, err := idr.gql.AssetCount(orgID)
+	if err != nil {
+		return 0, err
+	}
+	c := uint64(q.Organization.Assets.TotalCount)
+	return c, nil
+}
+
 func newIDR(region, apiKey string) (idr *IDR, err error) {
 	h := resty.New()
 	urlS := fmt.Sprintf("https://%s.api.insight.rapid7.com", strings.ToLower(region))
@@ -240,9 +250,14 @@ func newIDR(region, apiKey string) (idr *IDR, err error) {
 		return
 	}
 	h.SetBaseURL(u.String())
+	gql, err := NewGraphQLClient(region, apiKey)
+	if err != nil {
+		return nil, err
+	}
 	idr = &IDR{
 		BaseURL: u,
 		http:    h,
+		gql:     gql,
 	}
 	return
 }

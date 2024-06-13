@@ -34,3 +34,14 @@ func TestClient_VM_Assets(t *testing.T) {
 		assert.True(t, len(assets[0].HostName) > 0)
 	})
 }
+
+func TestClient_VM_AssetCount(t *testing.T) {
+	t.Parallel()
+	env, err := LoadEnv()
+	require.NoError(t, err)
+	r7, err := rapid7.New(env.Region, env.APIKey)
+	require.NoError(t, err)
+	count, err := r7.VM.AssetCount()
+	require.NoError(t, err)
+	assert.GreaterOrEqual(t, count, uint64(20))
+}

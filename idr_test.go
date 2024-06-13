@@ -131,3 +131,13 @@ func TestClient_IDR_Assets(t *testing.T) {
 		assert.True(t, len(assets) > 0, "no assets")
 	})
 }
+
+func TestClient_AssetCount(t *testing.T) {
+	env, err := LoadEnv()
+	require.NoError(t, err)
+	gql, err := rapid7.NewGraphQLClient(env.Region, env.APIKey)
+	require.NoError(t, err)
+	res, err := gql.AssetCount(env.OrgID)
+	require.NoError(t, err)
+	assert.GreaterOrEqual(t, int(res.Organization.Assets.TotalCount), 10)
+}

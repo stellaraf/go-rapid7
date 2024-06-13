@@ -1,3 +1,4 @@
+// See https://help.rapid7.com/insightvm/en-us/api/integrations.html
 package rapid7
 
 import (
@@ -25,6 +26,30 @@ func (s VMAssetSearchPageSize) String() string {
 }
 
 var VM_ASSET_SEARCH_PAGE_SIZE VMAssetSearchPageSize = 100
+
+type VMMetadata struct {
+	// The index (zero-based) of the current page returned.
+	Number int64 `json:"number"`
+	// The maximum size of the page returned.
+	Size int64 `json:"size"`
+	// The stateless cursor associated with the series of page requests being made.
+	Cursor string `json:"cursor"`
+	// The total number of resources available across all pages.
+	TotalResources int64 `json:"totalResources"`
+	// The total number of pages available.
+	TotalPages int64 `json:"totalPages"`
+}
+
+type VMLink struct {
+	HREF string `json:"href"`
+	Rel  string `json:"rel"`
+}
+
+type Rapid7VMPagedResponse[T any] struct {
+	Data     []T         `json:"data"`
+	Links    []VMLink    `json:"links"`
+	Metadata *VMMetadata `json:"metadata"`
+}
 
 const (
 	VMExceptionVulnExpl   VMVulnerabilityStatus = "EXCEPTION_VULN_EXPL"

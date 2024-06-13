@@ -32,7 +32,7 @@ func (vm *VM) getQuery(search []VMAssetSearchQuery) VMAssetSearchQuery {
 	return qp
 }
 
-func (vm *VM) AssetSearch(search ...VMAssetSearchQuery) (*Rapid7PagedResponse[VMAsset], error) {
+func (vm *VM) AssetSearch(search ...VMAssetSearchQuery) (*Rapid7VMPagedResponse[VMAsset], error) {
 	qp := vm.getQuery(search)
 	qp.Size = int(VM_ASSET_SEARCH_PAGE_SIZE)
 	req := vm.http.R()
@@ -51,7 +51,7 @@ func (vm *VM) AssetSearch(search ...VMAssetSearchQuery) (*Rapid7PagedResponse[VM
 		err = fmt.Errorf("%s: %s", res.Status(), e.Message)
 		return nil, err
 	}
-	var data *Rapid7PagedResponse[VMAsset]
+	var data *Rapid7VMPagedResponse[VMAsset]
 	err = json.Unmarshal(res.Body(), &data)
 	if err != nil {
 		err = errors.Join(fmt.Errorf("failed to parse response"), err)
@@ -60,7 +60,7 @@ func (vm *VM) AssetSearch(search ...VMAssetSearchQuery) (*Rapid7PagedResponse[VM
 	return data, nil
 }
 
-func (vm *VM) Assets(search ...VMAssetSearchQuery) ([]*VMAsset, error) {
+func (vm *VM) Assets(search ...VMAssetSearchQuery) ([]VMAsset, error) {
 	qp := vm.getQuery(search)
 	qp.Size = int(VM_ASSET_SEARCH_PAGE_SIZE)
 	res, err := vm.AssetSearch(qp)
@@ -69,7 +69,7 @@ func (vm *VM) Assets(search ...VMAssetSearchQuery) ([]*VMAsset, error) {
 	}
 	assets := res.Data
 	pages := res.Metadata.TotalPages
-	page := res.Metadata.Index
+	page := res.Metadata.Number
 	lastPage := pages - 1
 	if pages > 1 {
 		for {
@@ -87,6 +87,28 @@ func (vm *VM) Assets(search ...VMAssetSearchQuery) ([]*VMAsset, error) {
 		}
 	}
 	return assets, nil
+}
+
+func (vm *VM) AssetCount() (uint64, error) {
+	req := vm.http.R().SetQueryParam("size", "1").SetResult(&Rapid7VMPagedResponse[VMAsset]{})
+	res, err := req.Post(vm.URL("/v4/integration/assets"))
+	if err != nil {
+		return 0, err
+	}
+	if res.IsError() {
+		e, ok := res.Error().(*APIError)
+		if !ok {
+			err = fmt.Errorf(res.Status())
+			return 0, err
+		}
+		err = fmt.Errorf("%s: %s", res.Status(), e.Message)
+		return 0, err
+	}
+	data, ok := res.Result().(*Rapid7VMPagedResponse[VMAsset])
+	if !ok {
+		return 0, fmt.Errorf("failed to parse response")
+	}
+	return uint64(data.Metadata.TotalResources), nil
 }
 
 func newVM(region, apiKey string) (idr *VM, err error) {

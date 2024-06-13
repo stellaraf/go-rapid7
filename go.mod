@@ -5,13 +5,15 @@ go 1.20
 require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/go-querystring v1.1.0
-	github.com/stellaraf/go-utils v0.0.5
+	github.com/shurcooL/graphql v0.0.0-20230722043721-ed46e5a46466
+	github.com/stellaraf/go-utils v0.1.6
 	github.com/stretchr/testify v1.8.4
 )
 
 require (
 	github.com/caarlos0/env/v9 v9.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/net v0.0.0-20211029224645-99673261e6eb // indirect

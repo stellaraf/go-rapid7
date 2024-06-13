@@ -14,6 +14,7 @@ type Env struct {
 	Region           string `env:"RAPID7_REGION"`
 	APIKey           string `env:"RAPID7_API_KEY"`
 	InvestigationRRN string `env:"RAPID7_INVESTIGATION_RRN"`
+	OrgID            string `env:"RAPID7_ORG_ID"`
 }
 
 func LoadEnv() (env Env, err error) {
