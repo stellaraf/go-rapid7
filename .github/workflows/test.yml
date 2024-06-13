@@ -6,15 +6,15 @@ jobs:
         strategy:
             matrix:
                 go-version:
-                    - 1.20.x
+                    - 1.22.x
                 os: [ubuntu-latest]
         runs-on: ${{ matrix.os }}
         steps:
             - name: Checkout code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Install Go
-              uses: actions/setup-go@v4
+              uses: actions/setup-go@v5
               with:
                   go-version: ${{ matrix.go-version }}
 
@@ -24,3 +24,4 @@ jobs:
                   RAPID7_REGION: ${{ secrets.RAPID7_REGION }}
                   RAPID7_API_KEY: ${{ secrets.RAPID7_API_KEY }}
                   RAPID7_INVESTIGATION_RRN: ${{ secrets.RAPID7_INVESTIGATION_RRN }}
+                  RAPID7_ORG_ID: ${{ secrets.RAPID7_ORG_ID }}
