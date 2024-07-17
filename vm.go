@@ -118,6 +118,7 @@ func newVM(region, apiKey string) (idr *VM, err error) {
 	if err != nil {
 		return
 	}
+	h.SetTimeout(RequestTimeout)
 	h.SetHeader("X-API-Key", apiKey)
 	validate, err := h.R().Get(fmt.Sprintf("https://%s/validate", u.Hostname()))
 	if err != nil {

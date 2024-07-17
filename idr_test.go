@@ -29,7 +29,7 @@ func TestClient_IDR_Investigation(t *testing.T) {
 		require.NoError(t, err)
 		inv, err := r7.IDR.Investigation(env.InvestigationRRN)
 		require.NoError(t, err)
-		assert.Contains(t, inv.Title, "mlove")
+		assert.Contains(t, inv.Title, env.InvestigationContains)
 	})
 }
 
@@ -57,6 +57,19 @@ func TestClient_IDR_Investigations(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, len(invs) != 0)
 	})
+	t.Run("get investigations with multiple statuses", func(t *testing.T) {
+		t.Parallel()
+		env, err := LoadEnv()
+		require.NoError(t, err)
+		r7, err := rapid7.New(env.Region, env.APIKey)
+		require.NoError(t, err)
+		q := &rapid7.InvestigationsQuery{
+			Statuses: []rapid7.InvestigationStatus{rapid7.CLOSED, rapid7.WAITING},
+		}
+		invs, err := r7.IDR.Investigations(q)
+		require.NoError(t, err)
+		assert.True(t, len(invs) != 0)
+	})
 
 	t.Run("get investigations all", func(t *testing.T) {
 		t.Parallel()
@@ -65,6 +78,7 @@ func TestClient_IDR_Investigations(t *testing.T) {
 		r7, err := rapid7.New(env.Region, env.APIKey)
 		require.NoError(t, err)
 		res, err := r7.IDR.InvestigationsResponse(&rapid7.InvestigationsQuery{Size: 2})
+		assert.Len(t, res.Data, 2)
 		require.NoError(t, err)
 		invs, err := r7.IDR.InvestigationsAll()
 		require.NoError(t, err)

@@ -11,10 +11,11 @@ import (
 )
 
 type Env struct {
-	Region           string `env:"RAPID7_REGION"`
-	APIKey           string `env:"RAPID7_API_KEY"`
-	InvestigationRRN string `env:"RAPID7_INVESTIGATION_RRN"`
-	OrgID            string `env:"RAPID7_ORG_ID"`
+	Region                string `env:"RAPID7_REGION"`
+	APIKey                string `env:"RAPID7_API_KEY"`
+	InvestigationRRN      string `env:"RAPID7_INVESTIGATION_RRN"`
+	OrgID                 string `env:"RAPID7_ORG_ID"`
+	InvestigationContains string `env:"RAPID7_INVESTIGATION_CONTAINS"`
 }
 
 func LoadEnv() (env Env, err error) {

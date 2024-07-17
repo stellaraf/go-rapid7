@@ -115,20 +115,14 @@ func (idr *IDR) InvestigationsAll(q ...*InvestigationsQuery) ([]*Investigation, 
 	if err != nil {
 		return nil, err
 	}
-	investigations := res.Data
-	pages := res.Metadata.TotalPages
-	if pages > 1 {
-		page := res.Metadata.Index
-		lastPage := pages - 1
-		for {
-			if page == lastPage {
-				return investigations, nil
-			}
-			var qq *InvestigationsQuery
+	investigations := make([]*Investigation, 0, res.Metadata.TotalData)
+	investigations = append(investigations, res.Data...)
+	lastPage := res.Metadata.TotalPages - 1
+	if lastPage > 1 {
+		for page := res.Metadata.Index + 1; page <= lastPage; page++ {
+			qq := &InvestigationsQuery{}
 			if len(q) > 0 {
 				qq = q[0]
-			} else {
-				qq = &InvestigationsQuery{}
 			}
 			qq.Index = page
 			pageRes, err := idr.InvestigationsResponse(qq)
@@ -136,7 +130,6 @@ func (idr *IDR) InvestigationsAll(q ...*InvestigationsQuery) ([]*Investigation, 
 				return nil, err
 			}
 			investigations = append(investigations, pageRes.Data...)
-			page = pageRes.Metadata.Index
 		}
 	}
 	return investigations, nil
@@ -232,32 +225,32 @@ func (idr *IDR) AssetCount(orgID string) (uint64, error) {
 	return c, nil
 }
 
-func newIDR(region, apiKey string) (idr *IDR, err error) {
+func newIDR(region, apiKey string) (*IDR, error) {
 	h := resty.New()
 	urlS := fmt.Sprintf("https://%s.api.insight.rapid7.com", strings.ToLower(region))
 	u, err := url.Parse(urlS)
 	if err != nil {
-		return
+		return nil, err
 	}
+	h.SetTimeout(RequestTimeout)
 	h.SetHeader("X-API-Key", apiKey)
 	h.SetHeader("Accept-version", "investigations-preview")
 	validate, err := h.R().Get(fmt.Sprintf("https://%s/validate", u.Hostname()))
 	if err != nil {
-		return
+		return nil, err
 	}
 	if validate.StatusCode() > 200 {
-		err = fmt.Errorf("failed to authenticate with Rapid7 API")
-		return
+		return nil, fmt.Errorf("failed to authenticate with Rapid7 API")
 	}
 	h.SetBaseURL(u.String())
 	gql, err := NewGraphQLClient(region, apiKey)
 	if err != nil {
 		return nil, err
 	}
-	idr = &IDR{
+	idr := &IDR{
 		BaseURL: u,
 		http:    h,
 		gql:     gql,
 	}
-	return
+	return idr, nil
 }
